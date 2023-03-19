@@ -76,9 +76,9 @@ To prevent a request from completing its destination just return a response. It 
 
 ```js
 // -> /routes/(middleware).ts
-import { MiddlewareHandler } from 'atom';
+import { Handler } from 'atom';
 
-const homeMiddleware: MiddlewareHandler = (req) => {
+const homeMiddleware: Handler = (req) => {
   const pathname = new URL(req.url).search;
   const age = new URLSearchParams(pathname).get('age');
   if (!age || +age < 18) {
