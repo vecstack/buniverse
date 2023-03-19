@@ -1,0 +1,30 @@
+{
+  "name": "atom",
+  "module": "index.ts",
+  "main": "index.ts",
+  "exports": {
+    ".": {
+      "import": "./index.ts",
+      "require": "./index.js"
+    },
+    "./runtime": {
+      "import": "./src/runtime/index.ts",
+      "require": "./src/runtime/index.js"
+    },
+    "./common": {
+      "import": "./src/common/index.ts",
+      "require": "./src/common/index.js"
+    }
+  },
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "^0.5.0"
+  },
+  "scripts": {
+    "example": "cd example && bun run ./index.ts"
+  },
+  "dependencies": {
+    "path-to-regexp": "^6.2.1",
+    "zod": "^3.21.4"
+  }
+}
