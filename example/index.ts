@@ -1,8 +1,8 @@
-import Atom from 'atom';
+import Cerelynn, { FSRouter } from 'cerelynn';
 
 async function main() {
-  await Atom.bootstrap({
-    router: Atom.FSRouter('src/routes'),
+  await Cerelynn.bootstrap({
+    router: FSRouter('src/routes'),
     public: 'public',
     port: 8000,
   });

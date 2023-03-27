@@ -1,8 +1,8 @@
 This is very experimental **DO NOT** use it in production.
 
-# What is Atom
+# What is Cerelynn
 
-Atom is a simple robust web framework built with Bun. Many features are inspired by front-end frameworks like React and Next.js such as the file-based routing and hooks.
+Cerelynn is a simple robust web framework built with Bun. Many features are inspired by front-end frameworks like React and Next.js such as the file-based routing and hooks.
 
 This is not a complete documentation because the framework is still in development. I will update this document as the framework evolves.
 
@@ -24,7 +24,7 @@ Each file should have one **default export** which is a function that takes the 
 
 ```js
 // -> /(get).ts
-import { Handler } from 'atom';
+import { Handler } from 'cerelynn';
 
 const Home: Handler = (request: Request) => {
   return new Response(`Hello world, your url is ${request.url}`);
@@ -47,7 +47,7 @@ You can access the parameters using a hooks called `useParams`. The difference b
 
 ```js
 // -> /users/[id]/(get).ts
-import { HttpStatus, useParams } from 'atom';
+import { HttpStatus, useParams } from 'cerelynn';
 
 export default function getUsers(): Response {
   const params = useParams();
@@ -76,7 +76,7 @@ To prevent a request from completing its destination just return a response. It 
 
 ```js
 // -> /routes/(middleware).ts
-import { Handler } from 'atom';
+import { Handler } from 'cerelynn';
 
 const homeMiddleware: Handler = (req) => {
   const pathname = new URL(req.url).search;
@@ -93,7 +93,7 @@ You can also apply some middleware to a specific end-point by exporting an array
 
 ```js
 // -> /routes/(get).ts
-import { Handler } from 'atom';
+import { Handler } from 'cerelynn';
 
 const Home: Handler = (req: Request) => {
   return new Response(`Hello world, your url is ${req.url}`);
