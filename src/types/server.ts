@@ -7,7 +7,7 @@ export type GlobalContext = {
 export interface BootstrapConfig {
   public?: string;
   port?: number;
-  routes: Routes;
+  router: () => Routes | Promise<Routes>;
 }
 
 export interface PluginConfig {

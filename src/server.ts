@@ -20,7 +20,8 @@ export function install(pluginFn: () => PluginConfig) {
 }
 
 export async function bootstrap(config: BootstrapConfig) {
-  const { port = 8080, routes } = config;
+  const { port = 8080, router } = config;
+  const routes = await router();
   async function handler(request: Request): Promise<Response> {
     try {
       await runInterceptors(reqInterceptors, request);

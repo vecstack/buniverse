@@ -3,7 +3,7 @@ import { Routes } from '../../types/routes.js';
 
 export function matchRoute(routes: Routes, pathname: string) {
   let pathObject = null;
-  if (routes[pathname]) return { route: routes[pathname], params: null };
+  if (routes[pathname]) return { route: routes[pathname], params: {} };
   for (const routePath in routes) {
     const matcher = match(routePath);
     const result = matcher(pathname);

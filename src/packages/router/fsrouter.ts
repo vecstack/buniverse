@@ -10,7 +10,6 @@ import {
   isValidExt,
   isValidName,
 } from '../../utils/utils.js';
-
 function refineRoutes(routes: Routes) {
   for (const url in routes) {
     if (url.includes('@')) {
@@ -38,7 +37,11 @@ function createPathResolver(baseUrl: string) {
   };
 }
 
-export async function FSRouter(baseUrl: string) {
+export function FSRouter(baseUrl: string) {
+  return () => FSRouterGenerator(baseUrl);
+}
+
+export async function FSRouterGenerator(baseUrl: string) {
   const routes: Routes = {};
   const middlewares: Handler[] = [];
   const routesResolver = createPathResolver(baseUrl);
