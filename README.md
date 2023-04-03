@@ -1,5 +1,11 @@
 This is very experimental **DO NOT** use it in production.
 
+### TODO
+
+- [ ] Hot reloading
+- [ ] Fix a bug with the recieving files from the request
+- [ ] CLI
+
 # What is Cerelynn
 
 Cerelynn is a simple robust web framework built with Bun. Many features are inspired by front-end frameworks like React and Next.js such as the file-based routing and hooks.

@@ -10,6 +10,7 @@ import {
   isValidExt,
   isValidName,
 } from '../../utils/utils.js';
+
 function refineRoutes(routes: Routes) {
   for (const url in routes) {
     if (url.includes('@')) {

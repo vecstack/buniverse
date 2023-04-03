@@ -4,6 +4,7 @@ import { runInterceptors, runMiddlewares } from './packages/router/middlewares.j
 import { HTTPVerb, Interceptor } from './types/routes.js';
 import { BootstrapConfig, GlobalContext, PluginConfig } from './types/server.js';
 import { NotFound } from './utils/utils.js';
+import serveStatic from 'serve-static-bun';
 
 export const globalContext: GlobalContext = {
   request: null,
@@ -20,7 +21,7 @@ export function install(pluginFn: () => PluginConfig) {
 }
 
 export async function bootstrap(config: BootstrapConfig) {
-  const { port = 8080, router } = config;
+  const { port = 8080, router, publicDir } = config;
   const routes = await router();
   async function handler(request: Request): Promise<Response> {
     try {
@@ -30,12 +31,17 @@ export async function bootstrap(config: BootstrapConfig) {
       const pathname = new URL(request.url).pathname;
       const verb = request.method.toLowerCase() as HTTPVerb;
       const routeObject = matchRoute(routes, pathname);
+
       if (pathname === '/debug') return new Response(JSON.stringify(routes));
-      if (!routeObject) return new Response('Implement static assets');
+
+      if (!routeObject) {
+        const response = await serveStatic(publicDir, { handleErrors: false })(request);
+        if (response.status === 404) return NotFound();
+        return response;
+      }
 
       const { route, params } = routeObject;
       const verbModule = route[verb];
-
       if (!verbModule || !verbModule.default) return NotFound();
       const handler = verbModule.default;
       globalContext.requestParams = params;

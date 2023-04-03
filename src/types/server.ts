@@ -5,7 +5,7 @@ export type GlobalContext = {
   requestParams: Record<string, string>;
 };
 export interface BootstrapConfig {
-  public?: string;
+  publicDir: string;
   port?: number;
   router: () => Routes | Promise<Routes>;
 }

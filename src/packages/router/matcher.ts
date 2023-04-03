@@ -10,7 +10,7 @@ export function matchRoute(routes: Routes, pathname: string) {
     if (result) {
       pathObject = {
         route: routes[routePath],
-        params: result.params as any,
+        params: result.params as Record<string, string>,
       };
       break;
     }
