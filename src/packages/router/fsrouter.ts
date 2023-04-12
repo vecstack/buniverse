@@ -10,7 +10,7 @@ import {
   isValidExt,
   isValidName,
 } from '../../utils/utils.js';
-
+import chokidar from 'chokidar';
 function refineRoutes(routes: Routes) {
   for (const url in routes) {
     if (url.includes('@')) {
@@ -38,8 +38,9 @@ function createPathResolver(baseUrl: string) {
   };
 }
 
-export function FSRouter(baseUrl: string) {
-  return () => FSRouterGenerator(baseUrl);
+export async function FSRouter(baseUrl: string) {
+  let routes: Routes = await FSRouterGenerator(baseUrl);
+  return routes;
 }
 
 export async function FSRouterGenerator(baseUrl: string) {

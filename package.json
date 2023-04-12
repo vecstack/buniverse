@@ -11,6 +11,10 @@
       "import": "./src/runtime/index.ts",
       "require": "./src/runtime/index.js"
     },
+    "./router": {
+      "import": "./src/packages/router/index.ts",
+      "require": "./src/packages/router/index.js"
+    },
     "./common": {
       "import": "./src/common/index.ts",
       "require": "./src/common/index.js"
@@ -21,10 +25,11 @@
     "bun-types": "^0.5.0"
   },
   "scripts": {
-    "example": "cd example && bun ./index.ts --watch"
+    "example": "cd example && bun --watch ./index.ts"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.26.5",
+    "chokidar": "^3.5.3",
     "path-to-regexp": "^6.2.1",
     "serve-static-bun": "^0.5.1",
     "zod": "^3.21.4"

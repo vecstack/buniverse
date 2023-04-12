@@ -1,10 +1,11 @@
-import Cerelynn, { FSRouter } from 'cerelynn';
+import Cerelynn from 'cerelynn';
+import { FSRouter } from 'cerelynn/router';
 
 async function main() {
   await Cerelynn.bootstrap({
-    router: FSRouter('src/routes'),
+    routes: FSRouter('src/routes'),
     publicDir: 'public',
-    port: 8000,
+    port: 8080,
   });
 }
 

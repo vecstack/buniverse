@@ -2,7 +2,8 @@ This is very experimental **DO NOT** use it in production.
 
 ### TODO
 
-- [ ] Hot reloading
+- [x] Hot reloading
+- [ ] watch routes in FS Router
 - [ ] Fix a bug with the recieving files from the request
 - [ ] CLI
 
