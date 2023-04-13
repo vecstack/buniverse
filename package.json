@@ -1,7 +1,8 @@
 {
-  "name": "cerelynn",
+  "name": "@vecstack/buniverse",
   "module": "index.ts",
   "main": "index.ts",
+  "version": "0.5.0",
   "exports": {
     ".": {
       "import": "./index.ts",

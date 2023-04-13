@@ -24,55 +24,53 @@ export async function bootstrap(config: BootstrapConfig) {
   const { port = 8080, routes: routesPromise, publicDir } = config;
   const routes = await routesPromise;
   async function handler(request: Request): Promise<Response> {
-    try {
-      await runInterceptors(reqInterceptors, request);
+    globalContext.requestParams = {};
+    globalContext.request = request;
 
-      globalContext.request = request;
-      const pathname = new URL(request.url).pathname;
-      const verb = request.method.toLowerCase() as HTTPVerb;
-      const routeObject = matchRoute(routes, pathname);
+    await runInterceptors(reqInterceptors, request);
 
-      if (pathname === '/debug') return new Response(JSON.stringify(routes));
+    const pathname = new URL(request.url).pathname;
+    const verb = request.method.toLowerCase() as HTTPVerb;
+    const routeObject = matchRoute(routes, pathname);
 
-      if (!routeObject) {
-        const response = await serveStatic(publicDir, { handleErrors: false })(request);
-        if (response.status === 404) return NotFound();
-        return response;
-      }
+    if (pathname === '/debug') return new Response(JSON.stringify(routes));
 
-      const { route, params } = routeObject;
-      const verbModule = route[verb];
-      if (!verbModule || !verbModule.default) return NotFound();
-      const handler = verbModule.default;
-      globalContext.requestParams = params;
-
-      let response;
-      try {
-        response =
-          (await parseBody(request, verbModule.body)) ||
-          (await runMiddlewares(request, route)) ||
-          (await handler(request)) ||
-          NotFound();
-      } catch (error) {
-        // @ts-ignore
-        response = new Response(`Oops, internal server error ${error.message}`, {
-          status: 500,
-        });
-        if (error instanceof Response) response = error;
-      }
-
-      await runInterceptors(resInterceptors, response);
-
+    if (!routeObject) {
+      const response = await serveStatic(publicDir, { handleErrors: false })(request);
+      if (response.status === 404) return NotFound();
       return response;
-    } finally {
-      globalContext.request = null;
     }
+
+    const { route, params } = routeObject;
+    const verbModule = route[verb];
+    if (!verbModule || !verbModule.default) return NotFound();
+    const handler = verbModule.default;
+    globalContext.requestParams = params;
+
+    let response;
+    try {
+      response =
+        (await parseBody(request, verbModule.body)) ||
+        (await runMiddlewares(request, route)) ||
+        (await handler(request)) ||
+        NotFound();
+    } catch (error) {
+      // @ts-ignore
+      response = new Response(`Oops, internal server error ${error.message}`, {
+        status: 500,
+      });
+      if (error instanceof Response) response = error;
+    }
+
+    await runInterceptors(resInterceptors, response);
+
+    return response;
   }
   Bun.serve({
-    fetch(request) {
-      return handler(request);
+    async fetch(request) {
+      return await handler(request);
     },
     port,
   });
-  console.log('Listening on localhost:' + port + '');
+  console.log('Listening on localhost:' + port + ' ' + Bun.version);
 }

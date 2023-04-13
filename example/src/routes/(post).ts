@@ -1,16 +1,14 @@
-import { Handler } from 'cerelynn';
-import path from 'path';
+import { Handler, useSchema } from 'cerelynn';
+import { z } from 'zod';
+
+const userSchema = z.object({
+  name: z.string(),
+  age: z.string(),
+  file: z.any()
+});
 const Home: Handler = async (req) => {
-  const body = await req.formData();
-  body.forEach((value, key) => {
-    if (value instanceof Blob) {
-      console.log(value);
-      console.log(process.cwd());
+  const body = await useSchema(userSchema);
 
-      Bun.write(path.resolve('/public'), value);
-    }
-  });
-
-  return new Response(`uploaded file with the size`);
+  return new Response(JSON.stringify(body));
 };
 export default Home;
