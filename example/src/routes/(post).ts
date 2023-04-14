@@ -1,14 +1,15 @@
-import { Handler, useSchema } from 'cerelynn';
+import { Handler, useSchema } from 'buniverse';
+import { Response } from 'buniverse/runtime'
 import { z } from 'zod';
 
 const userSchema = z.object({
   name: z.string(),
   age: z.string(),
-  file: z.any()
+  file: z.instanceof(Blob)
 });
+
 const Home: Handler = async (req) => {
   const body = await useSchema(userSchema);
-
-  return new Response(JSON.stringify(body));
+  return new Response(body);
 };
 export default Home;

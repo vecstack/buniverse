@@ -1,3 +1,3 @@
-import { Handler } from 'cerelynn';
-const Users: Handler = (req) => {};
+import { Handler } from 'buniverse';
+const Users: Handler = (req) => { };
 export default Users;

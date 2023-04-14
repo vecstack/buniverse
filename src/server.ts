@@ -1,9 +1,8 @@
 import { parseBody } from './packages/router/body-parser.js';
-import { matchRoute } from './packages/router/matcher.js';
 import { runInterceptors, runMiddlewares } from './packages/router/middlewares.js';
-import { HTTPVerb, Interceptor } from './types/routes.js';
+import { Interceptor } from './types/routes.js';
 import { BootstrapConfig, GlobalContext, PluginConfig } from './types/server.js';
-import { NotFound } from './utils/utils.js';
+import { NotFound, parseRequest } from './utils/utils.js';
 import serveStatic from 'serve-static-bun';
 
 export const globalContext: GlobalContext = {
@@ -21,19 +20,16 @@ export function install(pluginFn: () => PluginConfig) {
 }
 
 export async function bootstrap(config: BootstrapConfig) {
-  const { port = 8080, routes: routesPromise, publicDir } = config;
-  const routes = await routesPromise;
+  const { port = 8080, router, publicDir } = config;
+
   async function handler(request: Request): Promise<Response> {
     globalContext.requestParams = {};
     globalContext.request = request;
 
     await runInterceptors(reqInterceptors, request);
 
-    const pathname = new URL(request.url).pathname;
-    const verb = request.method.toLowerCase() as HTTPVerb;
-    const routeObject = matchRoute(routes, pathname);
-
-    if (pathname === '/debug') return new Response(JSON.stringify(routes));
+    const { pathname, verb } = parseRequest(request)
+    const routeObject = router.match(pathname)
 
     if (!routeObject) {
       const response = await serveStatic(publicDir, { handleErrors: false })(request);
@@ -55,11 +51,10 @@ export async function bootstrap(config: BootstrapConfig) {
         (await handler(request)) ||
         NotFound();
     } catch (error) {
-      // @ts-ignore
-      response = new Response(`Oops, internal server error ${error.message}`, {
-        status: 500,
-      });
+
       if (error instanceof Response) response = error;
+      else throw error;
+
     }
 
     await runInterceptors(resInterceptors, response);

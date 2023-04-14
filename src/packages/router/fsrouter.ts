@@ -1,7 +1,9 @@
+import { match } from 'path-to-regexp';
 import path from 'path';
 import fs from 'fs/promises';
 import { Handler, Route, RouteModule, Routes } from '../../types/routes.js';
 import {
+  createPathResolver,
   createUrl,
   fetchMiddleware,
   fetchRoute,
@@ -10,7 +12,8 @@ import {
   isValidExt,
   isValidName,
 } from '../../utils/utils.js';
-import chokidar from 'chokidar';
+import { BootstrapConfig } from '../../types/server.js';
+
 function refineRoutes(routes: Routes) {
   for (const url in routes) {
     if (url.includes('@')) {
@@ -32,16 +35,29 @@ function refineRoutes(routes: Routes) {
   }
   return routes;
 }
-function createPathResolver(baseUrl: string) {
-  return (...pathSegments: string[]) => {
-    return path.join(process.cwd(), baseUrl, ...pathSegments);
-  };
+
+
+
+export function fsRouteMatcher(routes: Routes) {
+  return (pathname: string) => {
+    let pathObject = null;
+    if (routes[pathname]) return { route: routes[pathname], params: {} };
+    for (const routePath in routes) {
+      const matcher = match(routePath);
+      const result = matcher(pathname);
+      if (result) {
+        pathObject = {
+          route: routes[routePath],
+          params: result.params as Record<string, string>,
+        };
+        break;
+      }
+    }
+    return pathObject;
+  }
 }
 
-export async function FSRouter(baseUrl: string) {
-  let routes: Routes = await FSRouterGenerator(baseUrl);
-  return routes;
-}
+
 
 export async function FSRouterGenerator(baseUrl: string) {
   const routes: Routes = {};
@@ -97,4 +113,12 @@ export async function FSRouterGenerator(baseUrl: string) {
   await readDir(['/']);
 
   return refineRoutes(routes);
+}
+
+
+export async function FSRouter(baseUrl: string): Promise<BootstrapConfig['router']> {
+  let routes: Routes = await FSRouterGenerator(baseUrl);
+  return {
+    match: fsRouteMatcher(routes)
+  }
 }

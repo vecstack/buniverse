@@ -4,7 +4,7 @@ export class Response extends OriginalResponse {
   constructor(body?: BodyInit | Record<string, unknown> | null, init?: ResponseInit) {
     super();
     if (typeof body === 'object') {
-      return new Response(JSON.stringify(body), {
+      return new OriginalResponse(JSON.stringify(body), {
         headers: {
           'Content-Type': 'application/json',
           ...init?.headers,
@@ -12,6 +12,6 @@ export class Response extends OriginalResponse {
         ...init,
       });
     }
-    return new Response(body, init);
+    return new OriginalResponse(body, init);
   }
 }

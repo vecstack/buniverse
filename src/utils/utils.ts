@@ -51,3 +51,16 @@ export function NotFound() {
     status: 404,
   });
 }
+
+
+export function parseRequest(req: Request) {
+  const pathname = new URL(req.url).pathname;
+  const verb = req.method.toLowerCase() as HTTPVerb;
+  return { pathname, verb }
+}
+
+export function createPathResolver(baseUrl: string) {
+  return (...pathSegments: string[]) => {
+    return path.join(process.cwd(), baseUrl, ...pathSegments);
+  };
+}

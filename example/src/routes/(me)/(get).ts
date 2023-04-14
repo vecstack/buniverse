@@ -1,4 +1,4 @@
-import { Handler } from 'cerelynn';
+import { Handler } from 'buniverse';
 const Me: Handler = (req) => {
   return new Response('Hello, world /mex');
 };

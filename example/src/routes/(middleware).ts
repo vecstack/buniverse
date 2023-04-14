@@ -1,5 +1,5 @@
-import { Handler } from 'cerelynn';
+import { Handler } from 'buniverse';
 
-const HomeMiddleware: Handler = (req) => {};
+const HomeMiddleware: Handler = (req) => { };
 
 export default HomeMiddleware;

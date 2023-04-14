@@ -1,3 +1,3 @@
-import { Handler } from 'cerelynn';
-const Settings: Handler = (req) => {};
+import { Handler } from 'buniverse';
+const Settings: Handler = (req) => { };
 export default Settings;

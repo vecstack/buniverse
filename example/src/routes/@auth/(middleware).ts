@@ -1,4 +1,4 @@
-import { Handler } from 'cerelynn';
+import { Handler } from 'buniverse';
 
-const AuthMiddleware: Handler = (req) => {};
+const AuthMiddleware: Handler = (req) => { };
 export default AuthMiddleware;

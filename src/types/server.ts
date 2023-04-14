@@ -1,4 +1,4 @@
-import { Interceptor, Routes } from './routes.js';
+import { Interceptor, Route, Routes } from './routes.js';
 
 export type GlobalContext = {
   request: Request | null;
@@ -7,7 +7,12 @@ export type GlobalContext = {
 export interface BootstrapConfig {
   publicDir: string;
   port?: number;
-  routes: Promise<Routes>;
+  router: {
+    match: (pathname: string) => {
+      route: Route,
+      params: Record<string, string>
+    } | null
+  };
 }
 
 export interface PluginConfig {

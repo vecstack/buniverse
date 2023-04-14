@@ -1,3 +1,3 @@
-import { Handler } from 'cerelynn';
-const SettingsMiddleware: Handler = (req) => {};
+import { Handler } from 'buniverse';
+const SettingsMiddleware: Handler = (req) => { };
 export default SettingsMiddleware;
