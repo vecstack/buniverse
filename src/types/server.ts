@@ -11,7 +11,8 @@ export interface BootstrapConfig {
     match: (pathname: string) => {
       route: Route,
       params: Record<string, string>
-    } | null
+    } | null,
+    all: Routes
   };
 }
 

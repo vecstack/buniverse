@@ -29,7 +29,10 @@ export async function bootstrap(config: BootstrapConfig) {
     await runInterceptors(reqInterceptors, request);
 
     const { pathname, verb } = parseRequest(request)
+
+    if (pathname === '/debug') return new Response(JSON.stringify(router.all, null, 2))
     const routeObject = router.match(pathname)
+
 
     if (!routeObject) {
       const response = await serveStatic(publicDir, { handleErrors: false })(request);
@@ -67,5 +70,5 @@ export async function bootstrap(config: BootstrapConfig) {
     },
     port,
   });
-  console.log('Listening on localhost:' + port + ' ' + Bun.version);
+  console.log('Listening on localhost:' + port);
 }

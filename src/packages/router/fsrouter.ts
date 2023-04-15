@@ -118,7 +118,9 @@ export async function FSRouterGenerator(baseUrl: string) {
 
 export async function FSRouter(baseUrl: string): Promise<BootstrapConfig['router']> {
   let routes: Routes = await FSRouterGenerator(baseUrl);
+
   return {
-    match: fsRouteMatcher(routes)
+    match: fsRouteMatcher(routes),
+    all: routes,
   }
 }

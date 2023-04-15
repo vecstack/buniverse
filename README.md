@@ -4,7 +4,7 @@ This is very experimental **DO NOT** use it in production.
 
 - [x] Hot reloading
 - [ ] watch routes in FS Router
-- [ ] Fix a bug with the recieving files from the request
+- [x] Fix a bug with the recieving files from the request
 - [ ] CLI
 
 # What is Buniverse
