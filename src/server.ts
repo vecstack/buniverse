@@ -28,11 +28,10 @@ export async function bootstrap(config: BootstrapConfig) {
 
     await runInterceptors(reqInterceptors, request);
 
-    const { pathname, verb } = parseRequest(request)
+    const { pathname, verb } = parseRequest(request);
 
-    if (pathname === '/debug') return new Response(JSON.stringify(router.all, null, 2))
-    const routeObject = router.match(pathname)
-
+    if (pathname === '/debug') return new Response(JSON.stringify(router.all, null, 2));
+    const routeObject = router.match(pathname);
 
     if (!routeObject) {
       const response = await serveStatic(publicDir, { handleErrors: false })(request);
@@ -41,23 +40,22 @@ export async function bootstrap(config: BootstrapConfig) {
     }
 
     const { route, params } = routeObject;
-    const verbModule = route[verb];
-    if (!verbModule || !verbModule.default) return NotFound();
-    const handler = verbModule.default;
+    const routeModule = route[verb];
+    if (!routeModule || !routeModule.default) return NotFound();
+
+    const handler = routeModule.default;
     globalContext.requestParams = params;
 
     let response;
     try {
       response =
-        (await parseBody(request, verbModule.body)) ||
+        (await parseBody(request, routeModule.body)) ||
         (await runMiddlewares(request, route)) ||
         (await handler(request)) ||
         NotFound();
     } catch (error) {
-
       if (error instanceof Response) response = error;
       else throw error;
-
     }
 
     await runInterceptors(resInterceptors, response);
