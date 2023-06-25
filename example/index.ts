@@ -1,9 +1,9 @@
 import Buniverse from 'buniverse';
-import { FSRouter } from 'buniverse/router';
+import { RouterManager } from 'buniverse/router';
 
 async function main() {
   await Buniverse.bootstrap({
-    router: await FSRouter('src/routes'),
+    router: await RouterManager.FSRouter('src/routes'),
     publicDir: 'public',
     port: 8080,
   });

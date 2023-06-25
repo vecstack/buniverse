@@ -4,15 +4,22 @@ export type GlobalContext = {
   request: Request | null;
   requestParams: Record<string, string>;
 };
+
+export type Interceptors = {
+  request: Interceptor<Request>[];
+  response: Interceptor<Response>[];
+};
+
+export type RouteMatcher = (pathname: string) => {
+  route: Route;
+  params: Record<string, string>;
+} | null;
 export interface BootstrapConfig {
   publicDir: string;
   port?: number;
   router: {
-    match: (pathname: string) => {
-      route: Route,
-      params: Record<string, string>
-    } | null,
-    all: Routes
+    match: RouteMatcher;
+    routes: Routes;
   };
 }
 

@@ -1,7 +1,11 @@
-import { parseBody } from './packages/router/body-parser.js';
-import { runInterceptors, runMiddlewares } from './packages/router/middlewares.js';
-import { Interceptor } from './types/routes.js';
-import { BootstrapConfig, GlobalContext, PluginConfig } from './types/server.js';
+import { InterceptorManager } from './packages/middlewares/index.js';
+import { ParserManager } from './packages/parsers/index.js';
+import {
+  BootstrapConfig,
+  GlobalContext,
+  Interceptors,
+  PluginConfig,
+} from './types/server.js';
 import { NotFound, parseRequest } from './utils/utils.js';
 import serveStatic from 'serve-static-bun';
 
@@ -10,13 +14,19 @@ export const globalContext: GlobalContext = {
   requestParams: {},
 };
 
-const reqInterceptors: Interceptor<Request>[] = [];
-const resInterceptors: Interceptor<Response>[] = [];
+const interceptors: Interceptors = {
+  request: [],
+  response: [],
+};
 
 export function install(pluginFn: () => PluginConfig) {
   const config = pluginFn();
-  if (config.onRequest) reqInterceptors.push(config.onRequest);
-  if (config.onResponse) resInterceptors.push(config.onResponse);
+  if (config.onRequest) {
+    interceptors.request.push(config.onRequest);
+  }
+  if (config.onResponse) {
+    interceptors.response.push(config.onResponse);
+  }
 }
 
 export async function bootstrap(config: BootstrapConfig) {
@@ -26,11 +36,16 @@ export async function bootstrap(config: BootstrapConfig) {
     globalContext.requestParams = {};
     globalContext.request = request;
 
-    await runInterceptors(reqInterceptors, request);
+    const requestInterceptorsResult = await InterceptorManager.run(
+      interceptors.request,
+      request
+    );
+    if (requestInterceptorsResult) return requestInterceptorsResult;
 
     const { pathname, verb } = parseRequest(request);
 
-    if (pathname === '/debug') return new Response(JSON.stringify(router.all, null, 2));
+    if (pathname === '/debug')
+      return new Response(JSON.stringify(router.routes, null, 2));
     const routeObject = router.match(pathname);
 
     if (!routeObject) {
@@ -48,9 +63,10 @@ export async function bootstrap(config: BootstrapConfig) {
 
     let response;
     try {
+      const routeMiddlewares = InterceptorManager.getRouteMiddlewares(route, verb);
       response =
-        (await parseBody(request, routeModule.body)) ||
-        (await runMiddlewares(request, route)) ||
+        (await ParserManager.parseRequestBody(request, routeModule.body)) ||
+        (await InterceptorManager.run(routeMiddlewares, request)) ||
         (await handler(request)) ||
         NotFound();
     } catch (error) {
@@ -58,7 +74,11 @@ export async function bootstrap(config: BootstrapConfig) {
       else throw error;
     }
 
-    await runInterceptors(resInterceptors, response);
+    const responseInterceptorResult = await InterceptorManager.run(
+      interceptors.response,
+      response
+    );
+    if (responseInterceptorResult) return responseInterceptorResult;
 
     return response;
   }
