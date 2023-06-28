@@ -31,9 +31,9 @@ Each file should have one **default export** which is a function that takes the 
 
 ```js
 // -> /(get).ts
-import { Handler } from 'buniverse';
+import { RequestHandler } from 'buniverse';
 
-const Home: Handler = (request: Request) => {
+const Home: RequestHandler = (request: Request) => {
   return new Response(`Hello world, your url is ${request.url}`);
 };
 
@@ -83,9 +83,9 @@ To prevent a request from completing its destination just return a response. It 
 
 ```js
 // -> /routes/(middleware).ts
-import { Handler } from 'buniverse';
+import { RequestHandler } from 'buniverse';
 
-const homeMiddleware: Handler = (req) => {
+const homeMiddleware: RequestHandler = (req) => {
   const pathname = new URL(req.url).search;
   const age = new URLSearchParams(pathname).get('age');
   if (!age || +age < 18) {
@@ -100,9 +100,9 @@ You can also apply some middleware to a specific end-point by exporting an array
 
 ```js
 // -> /routes/(get).ts
-import { Handler } from 'buniverse';
+import { RequestHandler } from 'buniverse';
 
-const Home: Handler = (req: Request) => {
+const Home: RequestHandler = (req: Request) => {
   return new Response(`Hello world, your url is ${req.url}`);
 };
 

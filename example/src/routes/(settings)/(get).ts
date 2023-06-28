@@ -1,3 +1,3 @@
-import { Handler } from 'buniverse';
-const Settings: Handler = (req) => { };
+import { RequestHandler } from 'buniverse';
+const Settings: RequestHandler = (req) => {};
 export default Settings;

@@ -1,6 +1,6 @@
-import { Handler } from '../../../index.js';
+import { RequestHandler } from '../../../index.js';
 
-const Home: Handler = async (req) => {
+const Home: RequestHandler = async (req) => {
   return new Response('Hello world');
 };
 export default Home;

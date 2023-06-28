@@ -1,12 +1,7 @@
-import { InterceptorManager } from './packages/middlewares/index.js';
-import { ParserManager } from './packages/parsers/index.js';
-import {
-  BootstrapConfig,
-  GlobalContext,
-  Interceptors,
-  PluginConfig,
-} from './types/server.js';
-import { NotFound, parseRequest } from './utils/utils.js';
+import { InterceptorManager } from './packages/interceptors/index.js';
+import { interceptors } from './packages/plugins/plugins.js';
+import { BootstrapConfig, GlobalContext } from './types/server.js';
+import { NotFound, enableDebugger, parseRequest } from './utils/utils.js';
 import serveStatic from 'serve-static-bun';
 
 export const globalContext: GlobalContext = {
@@ -14,77 +9,57 @@ export const globalContext: GlobalContext = {
   requestParams: {},
 };
 
-const interceptors: Interceptors = {
-  request: [],
-  response: [],
-};
-
-export function install(pluginFn: () => PluginConfig) {
-  const config = pluginFn();
-  if (config.onRequest) {
-    interceptors.request.push(config.onRequest);
-  }
-  if (config.onResponse) {
-    interceptors.response.push(config.onResponse);
-  }
-}
-
 export async function bootstrap(config: BootstrapConfig) {
   const { port = 8080, router, publicDir } = config;
 
   async function handler(request: Request): Promise<Response> {
+    enableDebugger(router);
+
+    // Prepare global context for a new request
     globalContext.requestParams = {};
     globalContext.request = request;
 
-    const requestInterceptorsResult = await InterceptorManager.run(
-      interceptors.request,
-      request
-    );
-    if (requestInterceptorsResult) return requestInterceptorsResult;
+    // Run request interceptors and throw if a response is returned
+    await InterceptorManager.runThrowing(interceptors.request, request);
 
+    // Get a route match for the current request
     const { pathname, verb } = parseRequest(request);
+    const routeMatch = router.match(pathname);
 
-    if (pathname === '/debug')
-      return new Response(JSON.stringify(router.routes, null, 2));
-    const routeObject = router.match(pathname);
-
-    if (!routeObject) {
+    if (!routeMatch) {
       const response = await serveStatic(publicDir, { handleErrors: false })(request);
       if (response.status === 404) return NotFound();
       return response;
     }
 
-    const { route, params } = routeObject;
-    const routeModule = route[verb];
-    if (!routeModule || !routeModule.default) return NotFound();
+    const verbModule = routeMatch.route[verb];
+    if (!verbModule || !verbModule.default) return NotFound();
 
-    const handler = routeModule.default;
-    globalContext.requestParams = params;
+    const requestHandler = verbModule.default;
+    globalContext.requestParams = routeMatch.params;
 
-    let response;
-    try {
-      const routeMiddlewares = InterceptorManager.getRouteMiddlewares(route, verb);
-      response =
-        (await ParserManager.parseRequestBody(request, routeModule.body)) ||
-        (await InterceptorManager.run(routeMiddlewares, request)) ||
-        (await handler(request)) ||
-        NotFound();
-    } catch (error) {
-      if (error instanceof Response) response = error;
-      else throw error;
-    }
-
-    const responseInterceptorResult = await InterceptorManager.run(
-      interceptors.response,
-      response
+    const routeMiddlewares = InterceptorManager.getRouteMiddlewares(
+      routeMatch.route,
+      verb
     );
-    if (responseInterceptorResult) return responseInterceptorResult;
+
+    const response =
+      (await InterceptorManager.run(routeMiddlewares, request)) ||
+      (await requestHandler(request)) ||
+      NotFound();
+
+    await InterceptorManager.runThrowing(interceptors.response, response);
 
     return response;
   }
   Bun.serve({
     async fetch(request) {
-      return await handler(request);
+      try {
+        return await handler(request);
+      } catch (error) {
+        if (error instanceof Response) return error;
+        throw error;
+      }
     },
     port,
   });

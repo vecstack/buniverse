@@ -1,28 +1,37 @@
 export type Interceptor<T> = (arg: T) => Response | void | Promise<Response | void>;
-export type Handler = Interceptor<Request>;
+export type RequestHandler = Interceptor<Request>;
 
 export enum HTTPVerb {
-	GET = "get",
-	POST = "post",
-	PUT = "put",
-	PATCH = "patch",
-	DELETE = "delete",
+  GET = 'get',
+  POST = 'post',
+  PUT = 'put',
+  PATCH = 'patch',
+  DELETE = 'delete',
 }
 
-export type ContentType = "json" | "form-data";
-
-export type RouteModule = {
-	default?: Handler;
-	middlewares?: Handler[];
-	body?: ContentType;
+export type HTTPVerbModule = {
+  default?: RequestHandler;
+  middlewares?: RequestHandler[];
 };
 
 export type MiddlewareModule = {
-	default?: Handler;
+  default?: RequestHandler;
 };
 
-export type Route = Partial<Record<HTTPVerb, RouteModule>> & {
-	middlewares?: Handler[];
+export type Route = Partial<Record<HTTPVerb, HTTPVerbModule>> & {
+  middlewares?: RequestHandler[];
 };
 
 export type Routes = Record<string, Route>;
+
+export type RouteMatch = {
+  route: Route;
+  params: Record<string, string>;
+};
+
+export type RouteMatcher = (pathname: string) => RouteMatch | null;
+
+export type Router = {
+  match: RouteMatcher;
+  routes: Routes;
+};

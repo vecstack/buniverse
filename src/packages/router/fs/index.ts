@@ -1,7 +1,7 @@
 import { match } from 'path-to-regexp';
 import path from 'path';
 import fs from 'fs/promises';
-import { Handler, Route, RouteModule, Routes } from '../../../types/routes.js';
+import { RequestHandler, Route, HTTPVerbModule, Routes } from '../../../types/routes.js';
 import {
   createPathResolver,
   createUrl,
@@ -57,7 +57,7 @@ export function fsRouteMatcher(routes: Routes) {
 
 export async function FSRouterGenerator(baseUrl: string) {
   const routes: Routes = {};
-  const middlewares: Handler[] = [];
+  const middlewares: RequestHandler[] = [];
   const routesResolver = createPathResolver(baseUrl);
 
   async function readDir(dirModules: string[]) {
@@ -80,12 +80,11 @@ export async function FSRouterGenerator(baseUrl: string) {
       if (isHTTPVerb(verb)) {
         const modulePath = path.join(dirPath, dirEntry.name);
         const module = await fetchRoute(modulePath);
-        const verbHandler: RouteModule = (route[verb] = {});
+        const verbHandler: HTTPVerbModule = (route[verb] = {});
 
         if (typeof module.default === 'function') verbHandler.default = module.default;
         if (Array.isArray(module.middlewares))
           verbHandler.middlewares = module.middlewares;
-        if (typeof module.body === 'string') verbHandler.body = module.body;
       }
 
       if (verb === 'middleware') {

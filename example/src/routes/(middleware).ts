@@ -1,5 +1,5 @@
-import { Handler } from 'buniverse';
+import { RequestHandler } from 'buniverse';
 
-const HomeMiddleware: Handler = (req) => { };
+const HomeMiddleware: RequestHandler = (req) => {};
 
 export default HomeMiddleware;

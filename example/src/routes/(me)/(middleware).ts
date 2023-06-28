@@ -1,3 +1,3 @@
-import { Handler } from 'buniverse';
-const MeMiddleware: Handler = (req) => { };
+import { RequestHandler } from 'buniverse';
+const MeMiddleware: RequestHandler = (req) => {};
 export default MeMiddleware;

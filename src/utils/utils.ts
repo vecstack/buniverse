@@ -1,5 +1,5 @@
 import path from 'path';
-import { HTTPVerb, MiddlewareModule, RouteModule } from '../types/routes.js';
+import { HTTPVerb, MiddlewareModule, HTTPVerbModule, Router } from '../types/routes.js';
 
 export function getFileSegments(filename: string) {
   const extname = path.extname(filename);
@@ -38,7 +38,7 @@ export function createUrl(dirSegments: string[]) {
     .replaceAll(']', '');
 }
 
-export async function fetchRoute<T>(modulePath: string): Promise<RouteModule> {
+export async function fetchRoute<T>(modulePath: string): Promise<HTTPVerbModule> {
   return await import(modulePath);
 }
 
@@ -52,15 +52,24 @@ export function NotFound() {
   });
 }
 
-
 export function parseRequest(req: Request) {
   const pathname = new URL(req.url).pathname;
   const verb = req.method.toLowerCase() as HTTPVerb;
-  return { pathname, verb }
+  return { pathname, verb };
 }
 
 export function createPathResolver(baseUrl: string) {
   return (...pathSegments: string[]) => {
     return path.join(process.cwd(), baseUrl, ...pathSegments);
+  };
+}
+
+export function enableDebugger(router: Router) {
+  router.routes['/debug'] = {
+    get: {
+      default: async () => {
+        return new Response(JSON.stringify(router.routes, null, 2));
+      },
+    },
   };
 }

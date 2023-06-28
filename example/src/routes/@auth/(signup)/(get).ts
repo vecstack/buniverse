@@ -1,3 +1,3 @@
-import { Handler } from 'buniverse';
-const Signup: Handler = (req) => { };
+import { RequestHandler } from 'buniverse';
+const Signup: RequestHandler = (req) => {};
 export default Signup;

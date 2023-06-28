@@ -1,3 +1,3 @@
-import { Handler } from 'buniverse';
-const User: Handler = (req) => { };
+import { RequestHandler } from 'buniverse';
+const User: RequestHandler = (req) => {};
 export default User;

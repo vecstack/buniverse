@@ -1,4 +1,4 @@
-import { Handler } from 'buniverse';
+import { RequestHandler } from 'buniverse';
 
-const AuthMiddleware: Handler = (req) => { };
+const AuthMiddleware: RequestHandler = (req) => {};
 export default AuthMiddleware;
