@@ -1,7 +1,7 @@
 import { OriginalResponse } from './exports.js';
 
 export class Response extends OriginalResponse {
-  constructor(body?: BodyInit | Record<string, unknown> | null, init?: ResponseInit) {
+  constructor(body?: BodyInit | object | null, init?: ResponseInit) {
     super();
     if (typeof body === 'object') {
       return new OriginalResponse(JSON.stringify(body), {
