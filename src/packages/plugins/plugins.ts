@@ -1,4 +1,4 @@
-import { Interceptors, PluginConfig } from '../../types/server.js';
+import { Interceptors, PluginConfig } from '../../@types/server.js';
 
 export const interceptors: Interceptors = {
   request: [],

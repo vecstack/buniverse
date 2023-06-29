@@ -1,7 +1,7 @@
 import { match } from 'path-to-regexp';
 import path from 'path';
 import fs from 'fs/promises';
-import { RequestHandler, Route, HTTPVerbModule, Routes } from '../../../types/routes.js';
+import { RequestHandler, Route, HTTPVerbModule, Routes } from '../../../@types/router.js';
 import {
   createPathResolver,
   createUrl,
@@ -12,7 +12,7 @@ import {
   isValidExt,
   isValidName,
 } from '../../../utils/utils.js';
-import { BootstrapConfig } from '../../../types/server.js';
+import { BootstrapConfig } from '../../../@types/server.js';
 
 function routesRefiner(routes: Routes) {
   for (const url in routes) {

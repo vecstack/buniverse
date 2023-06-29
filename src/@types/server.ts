@@ -1,8 +1,8 @@
-import { Interceptor, Router } from './routes.js';
+import { Interceptor, Router } from './router.js';
 
 export type GlobalContext = {
   request: Request | null;
-  requestParams: Record<string, string>;
+  requestParams: Record<string, string> | null;
 };
 
 export type Interceptors = {

@@ -1,12 +1,12 @@
 import { InterceptorManager } from './packages/interceptors/index.js';
 import { interceptors } from './packages/plugins/plugins.js';
-import { BootstrapConfig, GlobalContext } from './types/server.js';
+import { BootstrapConfig, GlobalContext } from './@types/server.js';
 import { NotFound, enableDebugger, parseRequest } from './utils/utils.js';
 import serveStatic from 'serve-static-bun';
 
 export const globalContext: GlobalContext = {
   request: null,
-  requestParams: {},
+  requestParams: null,
 };
 
 export async function bootstrap(config: BootstrapConfig) {
@@ -16,7 +16,7 @@ export async function bootstrap(config: BootstrapConfig) {
     enableDebugger(router);
 
     // Prepare global context for a new request
-    globalContext.requestParams = {};
+    globalContext.requestParams = null;
     globalContext.request = request;
 
     // Run request interceptors and throw if a response is returned

@@ -1,5 +1,5 @@
 import path from 'path';
-import { HTTPVerb, MiddlewareModule, HTTPVerbModule, Router } from '../types/routes.js';
+import { HTTPVerb, MiddlewareModule, HTTPVerbModule, Router } from '../@types/router.js';
 
 export function getFileSegments(filename: string) {
   const extname = path.extname(filename);

@@ -1,4 +1,5 @@
 export type Interceptor<T> = (arg: T) => Response | void | Promise<Response | void>;
+
 export type RequestHandler = Interceptor<Request>;
 
 export enum HTTPVerb {
