@@ -14,7 +14,7 @@ import {
 } from '../../../utils/utils.js';
 import { BootstrapConfig } from '../../../types/server.js';
 
-function refineRoutes(routes: Routes) {
+function routesRefiner(routes: Routes) {
   for (const url in routes) {
     if (url.includes('@')) {
       const segments = url.split('/');
@@ -36,7 +36,7 @@ function refineRoutes(routes: Routes) {
   return routes;
 }
 
-export function fsRouteMatcher(routes: Routes) {
+export function routeMatcher(routes: Routes) {
   return (pathname: string) => {
     let pathObject = null;
     if (routes[pathname]) return { route: routes[pathname], params: {} };
@@ -55,7 +55,7 @@ export function fsRouteMatcher(routes: Routes) {
   };
 }
 
-export async function FSRouterGenerator(baseUrl: string) {
+export async function routesGenerator(baseUrl: string) {
   const routes: Routes = {};
   const middlewares: RequestHandler[] = [];
   const routesResolver = createPathResolver(baseUrl);
@@ -107,14 +107,14 @@ export async function FSRouterGenerator(baseUrl: string) {
   }
   await readDir(['/']);
 
-  return refineRoutes(routes);
+  return routesRefiner(routes);
 }
 
 export async function FSRouter(baseUrl: string): Promise<BootstrapConfig['router']> {
-  let routes: Routes = await FSRouterGenerator(baseUrl);
+  let routes: Routes = await routesGenerator(baseUrl);
 
   return {
-    match: fsRouteMatcher(routes),
+    match: routeMatcher(routes),
     routes: routes,
   };
 }

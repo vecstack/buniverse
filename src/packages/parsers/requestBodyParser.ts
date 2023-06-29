@@ -1,5 +1,4 @@
-import { ContentType } from '../../types/routes.js';
-
+export type ContentType = 'json' | 'form-data';
 export const parseRequestBody = async (
   req: Request,
   contentType?: ContentType
