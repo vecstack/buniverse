@@ -1,7 +1,7 @@
 import { InterceptorManager } from './packages/interceptors/index.js';
 import { interceptors } from './packages/plugins/plugins.js';
 import { BootstrapConfig, GlobalContext } from './@types/server.js';
-import { NotFound, enableDebugger, parseRequest } from './utils/utils.js';
+import { NotFound, parseRequest } from './utils/utils.js';
 import serveStatic from 'serve-static-bun';
 
 export const globalContext: GlobalContext = {
@@ -9,15 +9,13 @@ export const globalContext: GlobalContext = {
   requestParams: null,
 };
 
-export async function bootstrap(config: BootstrapConfig) {
+export function bootstrap(config: BootstrapConfig) {
   const { port = 8080, router, publicDir } = config;
 
   async function handler(request: Request): Promise<Response> {
-    enableDebugger(router);
-
     // Prepare global context for a new request
     globalContext.requestParams = null;
-    globalContext.request = request;
+    globalContext.request = null;
 
     // Run request interceptors and throw if a response is returned
     await InterceptorManager.runThrowing(interceptors.request, request);
@@ -32,16 +30,14 @@ export async function bootstrap(config: BootstrapConfig) {
       return response;
     }
 
-    const verbModule = routeMatch.route[verb];
+    const verbModule = routeMatch.getVerbModule(verb);
     if (!verbModule || !verbModule.default) return NotFound();
 
     const requestHandler = verbModule.default;
+    globalContext.request = request;
     globalContext.requestParams = routeMatch.params;
 
-    const routeMiddlewares = InterceptorManager.getRouteMiddlewares(
-      routeMatch.route,
-      verb
-    );
+    const routeMiddlewares = routeMatch.getVerbMiddlewares(verb);
 
     const response =
       (await InterceptorManager.run(routeMiddlewares, request)) ||

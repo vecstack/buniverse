@@ -63,13 +63,3 @@ export function createPathResolver(baseUrl: string) {
     return path.join(process.cwd(), baseUrl, ...pathSegments);
   };
 }
-
-export function enableDebugger(router: Router) {
-  router.routes['/debug'] = {
-    get: {
-      default: async () => {
-        return new Response(JSON.stringify(router.routes, null, 2));
-      },
-    },
-  };
-}

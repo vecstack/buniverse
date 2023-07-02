@@ -1,4 +1,8 @@
-import { Interceptor, Router } from './router.js';
+import { Router } from './router.js';
+
+export type Interceptor<T> = (arg: T) => Response | void | Promise<Response | void>;
+
+export type RequestHandler = Interceptor<Request>;
 
 export type GlobalContext = {
   request: Request | null;

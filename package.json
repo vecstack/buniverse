@@ -27,7 +27,7 @@
     "bun-types": "^0.5.0"
   },
   "scripts": {
-    "example": "cd example && bun --watch ./index.ts"
+    "example": "cd example && bun --watch ./index.tsx"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.26.5",

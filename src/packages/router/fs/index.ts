@@ -1,7 +1,12 @@
 import { match } from 'path-to-regexp';
 import path from 'path';
 import fs from 'fs/promises';
-import { RequestHandler, Route, HTTPVerbModule, Routes } from '../../../@types/router.js';
+import {
+  HTTPVerbModule,
+  RouteMatcher,
+  RouteMatch,
+  HTTPVerb,
+} from '../../../@types/router.js';
 import {
   createPathResolver,
   createUrl,
@@ -12,9 +17,10 @@ import {
   isValidExt,
   isValidName,
 } from '../../../utils/utils.js';
-import { BootstrapConfig } from '../../../@types/server.js';
+import { BootstrapConfig, RequestHandler } from '../../../@types/server.js';
+import { FSRoute, FSRoutes } from './types.js';
 
-function routesRefiner(routes: Routes) {
+function routesRefiner(routes: FSRoutes) {
   for (const url in routes) {
     if (url.includes('@')) {
       const segments = url.split('/');
@@ -36,34 +42,54 @@ function routesRefiner(routes: Routes) {
   return routes;
 }
 
-export function routeMatcher(routes: Routes) {
+export function routeMatcher(routes: FSRoutes): RouteMatcher {
   return (pathname: string) => {
-    let pathObject = null;
-    if (routes[pathname]) return { route: routes[pathname], params: {} };
+    let routeMatch: RouteMatch | null = null;
+
+    if (routes[pathname]) {
+      const route = routes[pathname];
+      return {
+        route: routes[pathname],
+        params: {},
+        getVerbModule(verb: HTTPVerb) {
+          return route[verb] ?? null;
+        },
+        getVerbMiddlewares(verb: HTTPVerb) {
+          return [route.middlewares || [], route[verb]?.middlewares || []].flat();
+        },
+      };
+    }
+
     for (const routePath in routes) {
-      const matcher = match(routePath);
-      const result = matcher(pathname);
+      const result = match(routePath)(pathname);
       if (result) {
-        pathObject = {
-          route: routes[routePath],
+        const route = routes[routePath];
+        routeMatch = {
           params: result.params as Record<string, string>,
+          getVerbModule(verb: HTTPVerb) {
+            return route[verb] ?? null;
+          },
+          getVerbMiddlewares(verb: HTTPVerb) {
+            return [route.middlewares || [], route[verb]?.middlewares || []].flat();
+          },
         };
         break;
       }
     }
-    return pathObject;
+
+    return routeMatch;
   };
 }
 
 export async function routesGenerator(baseUrl: string) {
-  const routes: Routes = {};
+  const routes: FSRoutes = {};
   const middlewares: RequestHandler[] = [];
   const routesResolver = createPathResolver(baseUrl);
 
   async function readDir(dirModules: string[]) {
     const dirPath = routesResolver(...dirModules);
     const url = createUrl(dirModules);
-    const route: Route = (routes[url] = {});
+    const route: FSRoute = (routes[url] = {});
 
     const dirEntries = await fs.readdir(dirPath, { withFileTypes: true });
     const pendingDirReads: string[] = [];
@@ -82,9 +108,12 @@ export async function routesGenerator(baseUrl: string) {
         const module = await fetchRoute(modulePath);
         const verbHandler: HTTPVerbModule = (route[verb] = {});
 
-        if (typeof module.default === 'function') verbHandler.default = module.default;
-        if (Array.isArray(module.middlewares))
+        if (typeof module.default === 'function') {
+          verbHandler.default = module.default;
+        }
+        if (Array.isArray(module.middlewares)) {
           verbHandler.middlewares = module.middlewares;
+        }
       }
 
       if (verb === 'middleware') {
@@ -110,11 +139,12 @@ export async function routesGenerator(baseUrl: string) {
   return routesRefiner(routes);
 }
 
-export async function FSRouter(baseUrl: string): Promise<BootstrapConfig['router']> {
-  let routes: Routes = await routesGenerator(baseUrl);
+export async function createFSRouter(
+  baseUrl: string
+): Promise<BootstrapConfig['router']> {
+  let routes: FSRoutes = await routesGenerator(baseUrl);
 
   return {
     match: routeMatcher(routes),
-    routes: routes,
   };
 }

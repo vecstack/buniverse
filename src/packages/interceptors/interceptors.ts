@@ -1,4 +1,4 @@
-import { HTTPVerb, Interceptor, Route } from '../../@types/router.js';
+import { Interceptor } from '../../@types/router.js';
 
 export const runThrowing = async <T>(interceptors: Interceptor<T>[], arg: T) => {
   for await (const interceptor of interceptors) {
@@ -12,8 +12,4 @@ export const run = async <T>(interceptors: Interceptor<T>[], arg: T) => {
     const result = await interceptor(arg);
     if (result) return result;
   }
-};
-
-export const getRouteMiddlewares = (route: Route, verb: HTTPVerb) => {
-  return [route.middlewares || [], route[verb]?.middlewares || []].flat();
 };
