@@ -10,6 +10,9 @@ const Buniverse = {
 };
 
 export { bootstrap, install, useParams, useRequest };
-export type { RequestHandler } from './src/@types/router.js';
-export type { BootstrapConfig, PluginConfig } from './src/@types/server.js';
+export type {
+  BootstrapConfig,
+  PluginConfig,
+  RequestHandler,
+} from './src/@types/server.js';
 export default Buniverse;
