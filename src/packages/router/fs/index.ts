@@ -1,24 +1,10 @@
 import { match } from 'path-to-regexp';
 import path from 'path';
 import fs from 'fs/promises';
-import {
-  HTTPVerbModule,
-  RouteMatcher,
-  RouteMatch,
-  HTTPVerb,
-} from '../../../@types/router.js';
-import {
-  createPathResolver,
-  createUrl,
-  fetchMiddleware,
-  fetchRoute,
-  getFileSegments,
-  isHTTPVerb,
-  isValidExt,
-  isValidName,
-} from '../../../utils/utils.js';
-import { BootstrapConfig, RequestHandler } from '../../../@types/server.js';
-import { FSRoute, FSRoutes } from './types.js';
+import { createPathResolver, createUrl, fetchMiddleware, fetchRouteModule } from '../../../utils/utils.js';
+import type { FSRoute, FSRoutes } from './types.js';
+import { Glob } from 'bun';
+import type { RouteMatch, RouteMatcher, HTTPVerb, RequestHandler, Router } from '../../../router-adapter.js';
 
 function routesRefiner(routes: FSRoutes) {
   for (const url in routes) {
@@ -29,9 +15,7 @@ function routesRefiner(routes: FSRoutes) {
         continue;
       }
       const filteredSegments = segments.filter((segment) => !segment.startsWith('@'));
-      const finalSegments = filteredSegments.map((segment) =>
-        segment.replace(/^.*?([^@/]+).*?$/, '$1')
-      );
+      const finalSegments = filteredSegments.map((segment) => segment.replace(/^.*?([^@/]+).*?$/, '$1'));
 
       const newUrl = `/${path.posix.join(...finalSegments)}`;
 
@@ -42,7 +26,7 @@ function routesRefiner(routes: FSRoutes) {
   return routes;
 }
 
-export function routeMatcher(routes: FSRoutes): RouteMatcher {
+function routeMatcher(routes: FSRoutes): RouteMatcher {
   return (pathname: string) => {
     let routeMatch: RouteMatch | null = null;
 
@@ -50,7 +34,6 @@ export function routeMatcher(routes: FSRoutes): RouteMatcher {
       const route = routes[pathname];
       return {
         route: routes[pathname],
-        params: {},
         getVerbModule(verb: HTTPVerb) {
           return route[verb] ?? null;
         },
@@ -65,7 +48,9 @@ export function routeMatcher(routes: FSRoutes): RouteMatcher {
       if (result) {
         const route = routes[routePath];
         routeMatch = {
-          params: result.params as Record<string, string>,
+          context: {
+            params: result.params,
+          },
           getVerbModule(verb: HTTPVerb) {
             return route[verb] ?? null;
           },
@@ -81,32 +66,39 @@ export function routeMatcher(routes: FSRoutes): RouteMatcher {
   };
 }
 
-export async function routesGenerator(baseUrl: string) {
+const verbModuleGlob = new Glob('*.{get,post,patch,put,delete}.{js,jsx,ts,tsx}');
+const middlewareModuleGlob = new Glob('*.middleware.{js,jsx,ts,tsx}');
+
+async function routesGenerator(baseUrl: string) {
   const routes: FSRoutes = {};
   const middlewares: RequestHandler[] = [];
   const routesResolver = createPathResolver(baseUrl);
 
-  async function readDir(dirModules: string[]) {
-    const dirPath = routesResolver(...dirModules);
-    const url = createUrl(dirModules);
-    const route: FSRoute = (routes[url] = {});
+  async function readRoute(modules: string[]) {
+    const routePath = routesResolver(...modules);
+    const url = createUrl(modules);
+    routes[url] = {};
+    const route: FSRoute = routes[url];
 
-    const dirEntries = await fs.readdir(dirPath, { withFileTypes: true });
-    const pendingDirReads: string[] = [];
+    const routeEntries = await fs.readdir(routePath, { withFileTypes: true });
+    const subroutes: string[] = [];
     let shouldPopMiddleware = false;
-    for (const dirEntry of dirEntries) {
-      if (dirEntry.isDirectory() && isValidName(dirEntry.name))
-        pendingDirReads.push(dirEntry.name);
-      if (!dirEntry.isFile()) continue;
-      const { name, extname } = getFileSegments(dirEntry.name);
-      if (!isValidName(name) || !isValidExt(extname)) continue;
 
-      const verb = name.slice(1, -1);
+    for (const routeEntry of routeEntries) {
+      // If it's a directory, push it to the submodules array so we can read it later
+      if (routeEntry.isDirectory()) {
+        subroutes.push(routeEntry.name);
+      }
 
-      if (isHTTPVerb(verb)) {
-        const modulePath = path.join(dirPath, dirEntry.name);
-        const module = await fetchRoute(modulePath);
-        const verbHandler: HTTPVerbModule = (route[verb] = {});
+      // If it's not a file, skip it
+      if (!routeEntry.isFile()) continue;
+
+      if (verbModuleGlob.match(routeEntry.name)) {
+        const verb = routeEntry.name.split('.').at(-2) as HTTPVerb;
+        const modulePath = path.join(routePath, routeEntry.name);
+        const module = await fetchRouteModule(modulePath);
+        route[verb] = {};
+        const verbHandler = route[verb];
 
         if (typeof module.default === 'function') {
           verbHandler.default = module.default;
@@ -116,8 +108,8 @@ export async function routesGenerator(baseUrl: string) {
         }
       }
 
-      if (verb === 'middleware') {
-        const modulePath = path.join(dirPath, dirEntry.name);
+      if (middlewareModuleGlob.match(routeEntry.name)) {
+        const modulePath = path.join(routePath, routeEntry.name);
         const module = await fetchMiddleware(modulePath);
         if (typeof module.default === 'function') {
           middlewares.push(module.default);
@@ -128,23 +120,23 @@ export async function routesGenerator(baseUrl: string) {
 
     if (middlewares.length > 0) route.middlewares = [...middlewares];
 
-    for (const pendingDirRead of pendingDirReads) {
-      await readDir([...dirModules, pendingDirRead]);
+    for (const subroute of subroutes) {
+      await readRoute([...modules, subroute]);
     }
 
     return shouldPopMiddleware && middlewares.pop();
   }
-  await readDir(['/']);
+  await readRoute(['/']);
 
   return routesRefiner(routes);
 }
 
-export async function createFSRouter(
-  baseUrl: string
-): Promise<BootstrapConfig['router']> {
+export async function createFSRouter(baseUrl: string): Promise<Router> {
   let routes: FSRoutes = await routesGenerator(baseUrl);
 
   return {
     match: routeMatcher(routes),
   };
 }
+
+export { useParams } from './hooks.js';

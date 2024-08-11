@@ -1,5 +1,4 @@
-import { HTTPVerb, HTTPVerbModule } from '../../../@types/router.js';
-import { RequestHandler } from '../../../@types/server.js';
+import type { HTTPVerb, HTTPVerbModule, RequestHandler } from '../../../router-adapter';
 
 export type FSRoute = Partial<Record<HTTPVerb, HTTPVerbModule>> & {
   middlewares?: RequestHandler[];

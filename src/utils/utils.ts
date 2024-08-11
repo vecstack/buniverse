@@ -1,44 +1,14 @@
 import path from 'path';
-import { HTTPVerb, MiddlewareModule, HTTPVerbModule, Router } from '../@types/router.js';
-
-export function getFileSegments(filename: string) {
-  const extname = path.extname(filename);
-  const name = filename.slice(0, -extname.length);
-  return { name, extname };
-}
-
-export function isValidExt(ext: string) {
-  return ext === '.js' || ext === '.ts';
-}
-
-export function isValidName(name: string) {
-  return (
-    (name.startsWith('(') && name.endsWith(')')) ||
-    (name.startsWith('[') && name.endsWith(']')) ||
-    name.startsWith('@')
-  );
-}
-
-export const isHTTPVerb = (str: string): str is HTTPVerb => {
-  return (
-    str === HTTPVerb.GET ||
-    str === HTTPVerb.POST ||
-    str === HTTPVerb.PUT ||
-    str === HTTPVerb.DELETE ||
-    str === HTTPVerb.PATCH
-  );
-};
+import { HTTPVerb, type HTTPVerbModule, type MiddlewareModule } from '../router-adapter';
 
 export function createUrl(dirSegments: string[]) {
   return path.posix
     .join(...dirSegments)
-    .replaceAll('(', '')
-    .replaceAll(')', '')
     .replaceAll('[', ':')
     .replaceAll(']', '');
 }
 
-export async function fetchRoute<T>(modulePath: string): Promise<HTTPVerbModule> {
+export async function fetchRouteModule<T>(modulePath: string): Promise<HTTPVerbModule> {
   return await import(modulePath);
 }
 
@@ -53,6 +23,7 @@ export function NotFound() {
 }
 
 export function parseRequest(req: Request) {
+  req;
   const pathname = new URL(req.url).pathname;
   const verb = req.method.toLowerCase() as HTTPVerb;
   return { pathname, verb };

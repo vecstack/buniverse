@@ -1,18 +1,17 @@
-import useParams from './src/packages/hooks/useParams.js';
-import useRequest from './src/packages/hooks/useRequest.js';
-import { install } from './src/packages/plugins/plugins.js';
+import useServerContext from './src/hooks/useContext.js';
+import useRequest from './src/hooks/useRequest.js';
+import { install } from './src/plugins/plugins.js';
 import { bootstrap } from './src/server.js';
+
 const Buniverse = {
   bootstrap,
   install,
-  useParams,
   useRequest,
+  useServerContext,
 };
 
-export { bootstrap, install, useParams, useRequest };
-export type {
-  BootstrapConfig,
-  PluginConfig,
-  RequestHandler,
-} from './src/@types/server.js';
+export { bootstrap, install, useRequest, useServerContext };
+export type { BootstrapConfig } from './src/server.js';
+export type { PluginConfig } from './src/plugins/plugins.js';
+export type { RequestHandler } from './src/router-adapter.js';
 export default Buniverse;
