@@ -2,10 +2,24 @@
   "name": "example",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "dev": "bun --watch run index.ts",
+    "db:migrate": "bun run ./src/database/migrate.ts",
+    "db:generate": "bunx drizzle-kit generate",
+    "db:push": "bunx drizzle-kit push"
+  },
   "devDependencies": {
-    "bun-types": "^1.0.30"
+    "bun-types": "^1.0.30",
+    "drizzle-kit": "^0.24.0"
   },
   "dependencies": {
-    "buniverse": "^0.5.5"
+    "@libsql/client": "^0.9.0",
+    "@types/uuid": "^10.0.0",
+    "buniverse": "^0.5.5",
+    "drizzle-orm": "^0.33.0",
+    "drizzle-zod": "^0.5.1",
+    "jose": "^5.6.3",
+    "uploadthing": "^6.13.2",
+    "uuid": "^10.0.0"
   }
 }

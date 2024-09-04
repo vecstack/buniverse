@@ -1,9 +1,12 @@
 import { z } from 'zod';
 import { useRequest } from 'buniverse';
-export async function useZodSchema<T>(schema: z.ZodType<T>) {
+export async function useZodSchema<T extends z.ZodTypeAny>(
+  schema: T
+): Promise<z.infer<T>> {
   const request = useRequest();
   const contentType = request.headers.get('Content-Type');
-  if (!contentType) throw new Response('Missing Content-Type');
+  if (!contentType)
+    throw Response.json({ message: 'Content-Type is required' }, { status: 400 });
 
   if (contentType.startsWith('application/json')) {
     try {
@@ -11,12 +14,12 @@ export async function useZodSchema<T>(schema: z.ZodType<T>) {
       const parsedBody = schema.safeParse(body);
       if (!parsedBody.success) {
         const formattedErrors = parsedBody.error.format();
-        throw new Response(JSON.stringify(formattedErrors));
+        throw Response.json(formattedErrors, { status: 400 });
       }
       return parsedBody.data;
     } catch (error) {
       if (error instanceof Response) throw error;
-      throw new Response('Invalid JSON');
+      throw Response.json({ message: 'Invalid JSON' }, { status: 400 });
     }
   }
 
@@ -26,14 +29,11 @@ export async function useZodSchema<T>(schema: z.ZodType<T>) {
       const body = Object.fromEntries(fd.entries());
       const parsedBody = schema.safeParse(body);
       if (!parsedBody.success) {
-        const errorMessages = parsedBody.error.errors
-          .map((err) => err.message)
-          .join(', ');
-        throw new Response(errorMessages);
+        throw Response.json(parsedBody.error.format(), { status: 400 });
       }
       return parsedBody.data;
     } catch (error) {
-      throw new Response('Invalid Form Data');
+      throw Response.json({ message: 'Invalid Form-Data' }, { status: 400 });
     }
   }
 

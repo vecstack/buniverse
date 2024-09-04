@@ -19,8 +19,7 @@ export function bootstrap(config: BootstrapConfig) {
     const routeMatch = router.match(pathname);
 
     if (!routeMatch) {
-      // @ts-ignore
-      const response = await serveStatic(publicDir, { handleErrors: false })(request);
+      const response = await serveStatic(publicDir)(request);
       if (response.status === 404) return NotFound();
       return response;
     }
@@ -42,7 +41,10 @@ export function bootstrap(config: BootstrapConfig) {
     const routeMiddlewares = routeMatch.getVerbMiddlewares(verb);
 
     const response = await AsyncGlobalContext.run(runWith, async () => {
-      const interceptorsResponse = await InterceptorManager.run(routeMiddlewares, request);
+      const interceptorsResponse = await InterceptorManager.run(
+        routeMiddlewares,
+        request
+      );
       if (interceptorsResponse) return interceptorsResponse;
       const handlerResponse = await requestHandler(request);
       if (handlerResponse) return handlerResponse;
