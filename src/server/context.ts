@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 
 export interface GlobalContext {
   request: Request | null;
-  [key: string]: any;
+  params?: Record<string, string>;
 }
 
 export const AsyncGlobalContext = new AsyncLocalStorage<GlobalContext>();

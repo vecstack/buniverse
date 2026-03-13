@@ -1,6 +1,6 @@
 import { type RequestHandler } from 'buniverse';
 
 const Home: RequestHandler = async (req) => {
-  return new Response('Hello world');
+  return <div>HEY!!!</div>;
 };
 export default Home;

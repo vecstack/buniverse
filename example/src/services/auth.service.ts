@@ -5,7 +5,7 @@ import type { UserRole } from '../database/models/user.model';
 
 export type AuthorizedHandler = (
   req: Request,
-  context: { user: { id: string } }
+  context: { user: { id: string } },
 ) => Promise<Response> | Response;
 
 export const AuthService = {

@@ -33,6 +33,8 @@ export async function useZodSchema<T extends z.ZodTypeAny>(
       }
       return parsedBody.data;
     } catch (error) {
+      console.error('Form data parsing error:', error);
+      if (error instanceof Response) throw error;
       throw Response.json({ message: 'Invalid Form-Data' }, { status: 400 });
     }
   }

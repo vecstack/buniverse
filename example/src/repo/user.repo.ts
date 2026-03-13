@@ -16,7 +16,8 @@ export const UserRepo = {
 
       return Ok(user);
     } catch (error) {
-      return Err({ message: 'Something went wrong', status: 500 });
+      console.error('Failed to find user by ID:', error);
+      return Err({ message: 'Failed to find user', status: 500 });
     }
   },
 
@@ -32,7 +33,8 @@ export const UserRepo = {
 
       return Ok(user);
     } catch (error) {
-      return Err({ message: 'Something went wrong', status: 500 });
+      console.error('Failed to find user by email:', error);
+      return Err({ message: 'Failed to find user', status: 500 });
     }
   },
 
@@ -41,7 +43,8 @@ export const UserRepo = {
       const [user] = await db.insert(schema.users).values(data).returning();
       return Ok(user);
     } catch (error) {
-      return Err({ message: 'Something went wrong', status: 500 });
+      console.error('Failed to create user:', error);
+      return Err({ message: 'Failed to create user', status: 500 });
     }
   },
 
@@ -54,7 +57,8 @@ export const UserRepo = {
         .returning({ name: schema.users.name, email: schema.users.email });
       return Ok(updatedUser);
     } catch (error) {
-      return Err({ message: 'Something went wrong', status: 500 });
+      console.error('Failed to update user:', error);
+      return Err({ message: 'Failed to update user', status: 500 });
     }
   },
 };

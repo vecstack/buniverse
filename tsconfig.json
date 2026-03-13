@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "target": "ESNext",
     "moduleDetection": "force",
@@ -23,8 +23,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
 
-    "types": [
-      "bun-types" // add Bun global
-    ]
+    "types": ["bun-types", "vite/client", "@vitejs/plugin-rsc/types"]
   }
 }

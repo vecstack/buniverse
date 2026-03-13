@@ -27,13 +27,22 @@
     "bun-types": "^1.0.30"
   },
   "scripts": {
-    "example": "cd example && bun --watch ./index.tsx"
+    "example": "cd example && bun --watch ./index.tsx",
+    "dev": "bunx --bun vite"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.26.5",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-rsc": "^0.5.21",
     "chokidar": "^3.5.3",
     "path-to-regexp": "^6.2.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "rsc-html-stream": "^0.0.7",
     "serve-static-bun": "^0.5.1",
+    "vite": "^8.0.0",
     "zod": "^3.21.4"
   },
   "description": "This is very experimental **DO NOT** use it in production.",

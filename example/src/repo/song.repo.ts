@@ -13,7 +13,8 @@ export const SongRepo = {
       const [song] = await db.insert(schema.songs).values(data).returning();
       return Ok(song);
     } catch (error) {
-      return Err({ message: 'Something went wrong', status: 500 });
+      console.error('Failed to create song:', error);
+      return Err({ message: 'Failed to create song', status: 500 });
     }
   },
   getMany: async () => {
@@ -21,7 +22,8 @@ export const SongRepo = {
       const songs = await db.select().from(schema.songs);
       return Ok(songs);
     } catch (error) {
-      return Err({ message: 'Something went wrong', status: 500 });
+      console.error('Failed to fetch songs:', error);
+      return Err({ message: 'Failed to fetch songs', status: 500 });
     }
   },
 };

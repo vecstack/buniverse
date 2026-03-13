@@ -1,22 +1,20 @@
-export type Interceptor<T> = (arg: T) => Response | void | Promise<Response | void>;
-
-export type RequestHandler = Interceptor<Request>;
+export type RequestHandler = (arg: Request) => Response | React.ReactElement | void | Promise<Response | React.ReactElement | void>;
 
 export enum HTTPVerb {
-  GET = 'get',
-  POST = 'post',
-  PUT = 'put',
-  PATCH = 'patch',
-  DELETE = 'delete',
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  PATCH = 'PATCH',
+  DELETE = 'DELETE'
 }
 
 export type HTTPVerbModule = {
-  default?: RequestHandler;
+  handler: RequestHandler;
   middlewares?: RequestHandler[];
 };
 
 export type MiddlewareModule = {
-  default?: RequestHandler;
+  handler?: RequestHandler;
 };
 
 export type RouteMatch = {
@@ -29,4 +27,5 @@ export type RouteMatcher = (pathname: string) => RouteMatch | null;
 
 export type Router = {
   match: RouteMatcher;
+  formatRoutes?(): Record<string, any>;
 };

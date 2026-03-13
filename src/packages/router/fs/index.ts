@@ -94,26 +94,54 @@ async function routesGenerator(baseUrl: string) {
       if (!routeEntry.isFile()) continue;
 
       if (verbModuleGlob.match(routeEntry.name)) {
-        const verb = routeEntry.name.split('.').at(-2) as HTTPVerb;
+        const verbLower = routeEntry.name.split('.').at(-2);
+        const verb = verbLower?.toUpperCase() as HTTPVerb;
         const modulePath = path.join(routePath, routeEntry.name);
-        const module = await fetchRouteModule(modulePath);
-        route[verb] = {};
-        const verbHandler = route[verb];
 
-        if (typeof module.default === 'function') {
-          verbHandler.default = module.default;
-        }
-        if (Array.isArray(module.middlewares)) {
-          verbHandler.middlewares = module.middlewares;
+        try {
+          const module = await fetchRouteModule(modulePath);
+
+          if (typeof module.default !== 'function' && module.default !== undefined) {
+            console.warn(`Route module at ${modulePath} has non-function default export`);
+            continue;
+          }
+
+          let moduleMiddlewares: RequestHandler[] = [];
+          if (Array.isArray(module.middlewares)) {
+            moduleMiddlewares = module.middlewares.filter(mw => typeof mw === 'function');
+          }
+
+          route[verb] = {
+            handler: module.default,
+            middlewares: moduleMiddlewares
+          }
+
+        } catch (error) {
+          console.error(`Failed to load route module ${modulePath}:`, error);
+          continue;
         }
       }
 
       if (middlewareModuleGlob.match(routeEntry.name)) {
         const modulePath = path.join(routePath, routeEntry.name);
-        const module = await fetchMiddleware(modulePath);
-        if (typeof module.default === 'function') {
-          middlewares.push(module.default);
-          shouldPopMiddleware = true;
+
+        try {
+          const module = await fetchMiddleware(modulePath);
+
+          if (!module) {
+            console.warn(`Middleware module at ${modulePath} is empty or invalid`);
+            continue;
+          }
+
+          if (typeof module.default === 'function') {
+            middlewares.push(module.default);
+            shouldPopMiddleware = true;
+          } else if (module.default !== undefined) {
+            console.warn(`Middleware module at ${modulePath} has non-function default export`);
+          }
+        } catch (error) {
+          console.error(`Failed to load middleware module ${modulePath}:`, error);
+          continue;
         }
       }
     }
@@ -136,6 +164,9 @@ export async function createFSRouter(baseUrl: string): Promise<Router> {
 
   return {
     match: routeMatcher(routes),
+    formatRoutes() {
+      return routes;
+    }
   };
 }
 

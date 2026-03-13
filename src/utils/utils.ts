@@ -1,5 +1,5 @@
 import path from 'path';
-import { HTTPVerb, type HTTPVerbModule, type MiddlewareModule } from '../router-adapter';
+import { HTTPVerb, type RequestHandler } from '../router-adapter';
 
 export function createUrl(dirSegments: string[]) {
   return path.posix
@@ -8,12 +8,20 @@ export function createUrl(dirSegments: string[]) {
     .replaceAll(']', '');
 }
 
-export async function fetchRouteModule<T>(modulePath: string): Promise<HTTPVerbModule> {
-  return await import(modulePath);
+type RouteModule = {
+  default: RequestHandler
+  middlewares: RequestHandler[]
 }
 
-export async function fetchMiddleware<T>(modulePath: string): Promise<MiddlewareModule> {
-  return await import(modulePath);
+type MiddlewareOnlyModule = {
+  default: RequestHandler
+}
+export async function fetchRouteModule(modulePath: string): Promise<RouteModule> {
+  return await import(/* @vite-ignore */modulePath);
+}
+
+export async function fetchMiddleware(modulePath: string): Promise<MiddlewareOnlyModule> {
+  return await import(/* @vite-ignore */modulePath);
 }
 
 export function NotFound() {
@@ -23,9 +31,8 @@ export function NotFound() {
 }
 
 export function parseRequest(req: Request) {
-  req;
   const pathname = new URL(req.url).pathname;
-  const verb = req.method.toLowerCase() as HTTPVerb;
+  const verb = req.method.toUpperCase() as HTTPVerb;
   return { pathname, verb };
 }
 
