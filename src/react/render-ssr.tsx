@@ -3,9 +3,9 @@ import React from "react";
 import type { ReactFormState } from "react-dom/client";
 import { renderToReadableStream } from "react-dom/server.edge";
 import { injectRSCPayload } from "rsc-html-stream/server";
-import type { RscPayload } from "./types";
+import type { RSCPayload } from "./types";
 
-export async function renderHTML(
+export async function renderSSR(
   rscStream: ReadableStream<Uint8Array>,
   options: {
     formState?: ReactFormState;
@@ -19,11 +19,11 @@ export async function renderHTML(
   const [rscStream1, rscStream2] = rscStream.tee();
 
   // deserialize RSC stream back to React VDOM
-  let payload: Promise<RscPayload> | undefined;
+  let payload: Promise<RSCPayload> | undefined;
   function SsrRoot() {
     // deserialization needs to be kicked off inside ReactDOMServer context
     // for ReactDomServer preinit/preloading to work
-    payload ??= createFromReadableStream<RscPayload>(rscStream1);
+    payload ??= createFromReadableStream<RSCPayload>(rscStream1);
     return React.use(payload).root;
   }
 

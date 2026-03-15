@@ -7,8 +7,8 @@ import {
   renderToReadableStream,
 } from '@vitejs/plugin-rsc/rsc';
 import type { ReactFormState } from 'react-dom/client';
-import { parseRenderRequest } from './request.ts';
-import type { RscPayload } from './types.ts';
+import { parseRenderRequest } from './utils/request';
+import type { RSCPayload } from './types.ts';
 
 export async function renderRSC(
   request: Request,
@@ -18,7 +18,7 @@ export async function renderRSC(
   request = renderRequest.request;
 
   // handle server function request
-  let returnValue: RscPayload['returnValue'] | undefined;
+  let returnValue: RSCPayload['returnValue'] | undefined;
   let formState: ReactFormState | undefined;
   let temporaryReferences: unknown | undefined;
   let actionStatus: number | undefined;
@@ -62,13 +62,13 @@ export async function renderRSC(
   // we render RSC stream after handling server function request
   // so that new render reflects updated state from server function call
   // to achieve single round trip to mutate and fetch from server.
-  const rscPayload: RscPayload = {
-    root: component,
+  const rscPayload: RSCPayload = {
+    root: renderRequest.actionId ? null : component,
     formState,
     returnValue,
   };
   const rscOptions = { temporaryReferences };
-  const rscStream = renderToReadableStream<RscPayload>(rscPayload, rscOptions);
+  const rscStream = renderToReadableStream<RSCPayload>(rscPayload, rscOptions);
 
   // Respond RSC stream without HTML rendering as decided by `RenderRequest`
   if (renderRequest.isRsc) {
@@ -85,9 +85,9 @@ export async function renderRSC(
   // in RSC environment. however this can be customized by implementing own runtime communication
   // e.g. `@cloudflare/vite-plugin`'s service binding.
   const ssrEntryModule = await import.meta.viteRsc.loadModule<
-    typeof import('./entry.ssr.tsx')
+    typeof import('./render-ssr.tsx')
   >('ssr', 'index');
-  const ssrResult = await ssrEntryModule.renderHTML(rscStream, {
+  const ssrResult = await ssrEntryModule.renderSSR(rscStream, {
     formState,
     // allow quick simulation of javascript disabled browser
     debugNojs: renderRequest.url.searchParams.has('__nojs'),
@@ -103,4 +103,8 @@ export async function renderRSC(
 }
 if (import.meta.hot) {
   import.meta.hot.accept();
+}
+
+export function fetchModule(modulePath: string) {
+  return import(/* @vite-ignore */modulePath);
 }

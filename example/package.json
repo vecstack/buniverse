@@ -3,19 +3,19 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "dev": "bun --watch run index.ts",
+    "dev": "bunx --bun vite",
     "db:migrate": "bun run ./src/database/migrate.ts",
     "db:generate": "bunx drizzle-kit generate",
     "db:push": "bunx drizzle-kit push"
   },
   "devDependencies": {
     "bun-types": "^1.0.30",
-    "drizzle-kit": "^0.24.0"
+    "drizzle-kit": "^0.24.0",
+    "vite": "^8.0.0"
   },
   "dependencies": {
     "@libsql/client": "^0.9.0",
     "@types/uuid": "^10.0.0",
-    "buniverse": "^0.5.5",
     "drizzle-orm": "^0.33.0",
     "drizzle-zod": "^0.5.1",
     "jose": "^5.6.3",

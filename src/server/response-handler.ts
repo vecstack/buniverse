@@ -1,6 +1,6 @@
 import React from "react";
 import type { RequestHandler } from "../router-adapter";
-import { renderRSC } from "../framework/entry.rsc";
+import { ReactServer } from "../react/react";
 
 
 export const runRequestHandler = async (request: Request, handle: RequestHandler): Promise<Response | null> => {
@@ -8,7 +8,7 @@ export const runRequestHandler = async (request: Request, handle: RequestHandler
 	if (!result) return null;
 
 	if (React.isValidElement(result)) {
-		return renderRSC(request, result);
+		return ReactServer.renderRSC(request, result);
 	}
 
 	return result;

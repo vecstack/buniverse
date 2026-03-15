@@ -1,5 +1,6 @@
 import path from 'path';
 import { HTTPVerb, type RequestHandler } from '../router-adapter';
+import { ReactServer } from '../react/react';
 
 export function createUrl(dirSegments: string[]) {
   return path.posix
@@ -17,11 +18,11 @@ type MiddlewareOnlyModule = {
   default: RequestHandler
 }
 export async function fetchRouteModule(modulePath: string): Promise<RouteModule> {
-  return await import(/* @vite-ignore */modulePath);
+  return await ReactServer.fetchModule(modulePath);
 }
 
 export async function fetchMiddleware(modulePath: string): Promise<MiddlewareOnlyModule> {
-  return await import(/* @vite-ignore */modulePath);
+  return await ReactServer.fetchModule(modulePath);
 }
 
 export function NotFound() {

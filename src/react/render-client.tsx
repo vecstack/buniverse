@@ -9,16 +9,16 @@ import React from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { rscStream } from "rsc-html-stream/client";
 import { GlobalErrorBoundary } from "./error-boundary";
-import { createRscRenderRequest } from "./request";
-import type { RscPayload } from "./types";
+import { createRscRenderRequest } from "./utils/request";
+import type { RSCPayload } from "./types";
 
 async function main() {
   // stash `setPayload` function to trigger re-rendering
   // from outside of `BrowserRoot` component (e.g. server function call, navigation, hmr)
-  let setPayload: (v: RscPayload) => void;
+  let setPayload: (v: RSCPayload) => void;
 
   // deserialize RSC stream back to React VDOM for CSR
-  const initialPayload = await createFromReadableStream<RscPayload>(
+  const initialPayload = await createFromReadableStream<RSCPayload>(
     // initial RSC stream is injected in SSR stream as <script>...FLIGHT_DATA...</script>
     rscStream,
   );
@@ -45,7 +45,7 @@ async function main() {
 
     fetch(renderRequest).then(async (response) => {
       console.log(response);
-      const payload = await createFromFetch<RscPayload>(
+      const payload = await createFromFetch<RSCPayload>(
         Promise.resolve(response),
       );
 
@@ -62,10 +62,10 @@ async function main() {
       id,
       body: await encodeReply(args, { temporaryReferences }),
     });
-    const payload = await createFromFetch<RscPayload>(fetch(renderRequest), {
+    const payload = await createFromFetch<RSCPayload>(fetch(renderRequest), {
       temporaryReferences,
     });
-    setPayload(payload);
+    // setPayload(payload);
     const { ok, data } = payload.returnValue!;
     if (!ok) throw data;
     return data;
