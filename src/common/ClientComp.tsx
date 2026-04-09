@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { updateAction } from './update';
 
-export const Test = () => {
+export const ClientComp = () => {
 	const [count, setCount] = useState(0);
 	return (
 		<div>

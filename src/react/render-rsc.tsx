@@ -9,6 +9,7 @@ import {
 import type { ReactFormState } from 'react-dom/client';
 import { parseRenderRequest } from './utils/request';
 import type { RSCPayload } from './types.ts';
+import { ServerComp } from '../common/ServerComp.tsx';
 
 export async function renderRSC(
   request: Request,
@@ -63,7 +64,7 @@ export async function renderRSC(
   // so that new render reflects updated state from server function call
   // to achieve single round trip to mutate and fetch from server.
   const rscPayload: RSCPayload = {
-    root: renderRequest.actionId ? null : component,
+    root: renderRequest.actionId ? null : <ServerComp />,
     formState,
     returnValue,
   };

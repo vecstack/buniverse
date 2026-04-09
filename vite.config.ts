@@ -1,10 +1,6 @@
-import { buniverse } from './src/plugin/vite'
-import { defineConfig } from 'vite'
+import { buniverse } from './src/plugin/vite';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [
-		buniverse({
-			server: './src/runnable.ts',
-		})
-	]
-})
+  plugins: [buniverse()],
+});

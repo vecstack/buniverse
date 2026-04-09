@@ -44,12 +44,10 @@ async function main() {
     const renderRequest = createRscRenderRequest(window.location.href);
 
     fetch(renderRequest).then(async (response) => {
-      console.log(response);
       const payload = await createFromFetch<RSCPayload>(
         Promise.resolve(response),
       );
 
-      console.log(payload);
       setPayload(payload);
     });
   }
