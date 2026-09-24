@@ -1,10 +1,21 @@
 import { match } from 'path-to-regexp';
 import path from 'path';
 import fs from 'fs/promises';
-import { createPathResolver, createUrl, fetchMiddleware, fetchRouteModule } from '../../../utils/utils.js';
+import {
+  createPathResolver,
+  createUrl,
+  fetchMiddleware,
+  fetchRouteModule,
+} from '../../utils/utils.js';
 import type { FSRoute, FSRoutes } from './types.js';
 import { Glob } from 'bun';
-import type { RouteMatch, RouteMatcher, HTTPVerb, RequestHandler, Router } from '../../../router-adapter.js';
+import type {
+  RouteMatch,
+  RouteMatcher,
+  HTTPVerb,
+  RequestHandler,
+  Router,
+} from '../../router-adapter.js';
 
 function routesRefiner(routes: FSRoutes) {
   for (const url in routes) {
@@ -15,7 +26,9 @@ function routesRefiner(routes: FSRoutes) {
         continue;
       }
       const filteredSegments = segments.filter((segment) => !segment.startsWith('@'));
-      const finalSegments = filteredSegments.map((segment) => segment.replace(/^.*?([^@/]+).*?$/, '$1'));
+      const finalSegments = filteredSegments.map((segment) =>
+        segment.replace(/^.*?([^@/]+).*?$/, '$1'),
+      );
 
       const newUrl = `/${path.posix.join(...finalSegments)}`;
 
@@ -108,14 +121,15 @@ async function routesGenerator(baseUrl: string) {
 
           let moduleMiddlewares: RequestHandler[] = [];
           if (Array.isArray(module.middlewares)) {
-            moduleMiddlewares = module.middlewares.filter(mw => typeof mw === 'function');
+            moduleMiddlewares = module.middlewares.filter(
+              (mw) => typeof mw === 'function',
+            );
           }
 
           route[verb] = {
             handler: module.default,
-            middlewares: moduleMiddlewares
-          }
-
+            middlewares: moduleMiddlewares,
+          };
         } catch (error) {
           console.error(`Failed to load route module ${modulePath}:`, error);
           continue;
@@ -137,7 +151,9 @@ async function routesGenerator(baseUrl: string) {
             middlewares.push(module.default);
             shouldPopMiddleware = true;
           } else if (module.default !== undefined) {
-            console.warn(`Middleware module at ${modulePath} has non-function default export`);
+            console.warn(
+              `Middleware module at ${modulePath} has non-function default export`,
+            );
           }
         } catch (error) {
           console.error(`Failed to load middleware module ${modulePath}:`, error);
@@ -166,7 +182,7 @@ export async function createFSRouter(baseUrl: string): Promise<Router> {
     match: routeMatcher(routes),
     formatRoutes() {
       return routes;
-    }
+    },
   };
 }
 

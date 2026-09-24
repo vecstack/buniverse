@@ -23,6 +23,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
 
-    "types": ["bun-types", "vite/client", "@vitejs/plugin-rsc/types"]
+    "types": ["bun-types"]
   }
 }

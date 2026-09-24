@@ -1,5 +1,4 @@
 import { join } from 'path';
-import { NotFound } from '../utils/utils';
 
 export const runStaticServer = async (request: Request, publicDir: string) => {
   const url = new URL(request.url);

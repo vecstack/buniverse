@@ -3,6 +3,7 @@ import { createFSRouter } from 'buniverse/router/fs';
 
 async function main() {
   const router = await createFSRouter('./src/routes');
+
   const handler = await Buniverse.bootstrap({
     router,
     publicDir: './public',

@@ -1,4 +1,4 @@
-import type { HTTPVerb, HTTPVerbModule, RequestHandler } from '../../../router-adapter';
+import type { HTTPVerb, HTTPVerbModule, RequestHandler } from '../../router-adapter';
 
 export type FSRoute = Partial<Record<HTTPVerb, HTTPVerbModule>> & {
   middlewares?: RequestHandler[];

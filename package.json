@@ -8,16 +8,9 @@
       "import": "./index.ts",
       "require": "./index.js"
     },
-    "./plugin": {
-      "import": "./src/plugin/vite.ts"
-    },
-    "./runtime": {
-      "import": "./src/runtime/index.ts",
-      "require": "./src/runtime/index.js"
-    },
     "./router/fs": {
-      "import": "./src/packages/router/fs/index.ts",
-      "require": "./src/packages/router/index.js"
+      "import": "./src/router/fs/index.ts",
+      "require": "./src/router/index.js"
     },
     "./common": {
       "import": "./src/common/index.ts",
@@ -25,35 +18,14 @@
     }
   },
   "type": "module",
-  "types": "./src/@types",
   "devDependencies": {
-    "bun-types": "^1.3.11",
-    "@vitejs/plugin-react": "^6.0.1",
-    "@vitejs/plugin-rsc": "^0.5.21",
-    "vite": "^8.0.0"
+    "bun-types": "^1.3.11"
   },
   "scripts": {
-    "example": "cd example && bun --watch ./index.tsx",
-    "dev": "bunx --bun vite",
-    "build": "bunx --bun vite build",
-    "preview": "bunx --bun vite preview"
+    "example": "cd example && bun --watch ./index.tsx"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.11",
-    "@hono/vite-dev-server": "^0.25.1",
-    "@sinclair/typebox": "^0.26.5",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "chokidar": "^3.5.3",
-    "es-module-lexer": "^2.0.0",
-    "hono": "^4.12.8",
     "path-to-regexp": "^6.2.1",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "react-server-dom-esm": "^0.0.1",
-    "react-server-dom-webpack": "^19.2.4",
-    "rsc-html-stream": "^0.0.7",
-    "serve-static-bun": "^0.5.1",
     "zod": "^3.21.4"
   },
   "description": "This is very experimental **DO NOT** use it in production.",

@@ -1,7 +1,7 @@
-import { Server } from '../server/server';
+import { Context } from '../context/context';
 
 const useServerContext = () => {
-  const asyncGlobalContext = Server.context.getStore();
+  const asyncGlobalContext = Context.get();
   if (!asyncGlobalContext) {
     throw new Error('useContext() must be used inside a route handler');
   }

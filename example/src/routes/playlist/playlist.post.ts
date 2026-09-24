@@ -7,7 +7,8 @@ import { z } from 'zod';
 const addPlaylistSchema = z.object({
   name: z.string(),
 });
-const AddPlaylistHandler: AuthorizedHandler = async (req, ctx) => {
+
+const AddPlaylistHandler: AuthorizedHandler = async (_, ctx) => {
   const { name } = await useZodSchema(addPlaylistSchema);
   const result = await PlaylistRepo.createPlaylist(ctx.user.id, name);
   return ResultFns.match(result)({

@@ -1,4 +1,4 @@
-import useServerContext from '../../../hooks/useContext';
+import useServerContext from '../../hooks/useContext';
 
 export const useParams = () => {
   const context = useServerContext();

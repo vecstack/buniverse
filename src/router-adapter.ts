@@ -1,11 +1,11 @@
-export type RequestHandler = (arg: Request) => Response | React.ReactElement | void | Promise<Response | React.ReactElement | void>;
+export type RequestHandler = (arg: Request) => Response | void | Promise<Response | void>;
 
 export enum HTTPVerb {
   GET = 'GET',
   POST = 'POST',
   PUT = 'PUT',
   PATCH = 'PATCH',
-  DELETE = 'DELETE'
+  DELETE = 'DELETE',
 }
 
 export type HTTPVerbModule = {
