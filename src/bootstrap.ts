@@ -1,5 +1,4 @@
 import { Server } from './server/server';
-import { HTTPVerb } from './router-adapter';
 import { NotFound, parseRequest } from './utils/utils';
 import type { Router } from './router-adapter';
 import { Context } from './context/context';
