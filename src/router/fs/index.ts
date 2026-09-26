@@ -1,12 +1,6 @@
 import { match } from 'path-to-regexp';
 import path from 'path';
 import fs from 'fs/promises';
-import {
-  createPathResolver,
-  createUrl,
-  fetchMiddleware,
-  fetchRouteModule,
-} from '../../utils/utils.js';
 import type { FSRoute, FSRoutes } from './types.js';
 import { Glob } from 'bun';
 import type {
@@ -15,7 +9,8 @@ import type {
   HTTPVerb,
   RequestHandler,
   Router,
-} from '../../router-adapter.js';
+} from '../../router/router-adapter.js';
+import { Importer } from '../../utils/importer.js';
 
 function routesRefiner(routes: FSRoutes) {
   for (const url in routes) {
@@ -85,11 +80,16 @@ const middlewareModuleGlob = new Glob('*.middleware.{js,jsx,ts,tsx}');
 async function routesGenerator(baseUrl: string) {
   const routes: FSRoutes = {};
   const middlewares: RequestHandler[] = [];
-  const routesResolver = createPathResolver(baseUrl);
+  const routesResolver = (...pathSegments: string[]) => {
+    return path.join(process.cwd(), baseUrl, ...pathSegments);
+  };
 
   async function readRoute(modules: string[]) {
     const routePath = routesResolver(...modules);
-    const url = createUrl(modules);
+    const url = path.posix
+      .join(...modules)
+      .replaceAll('[', ':')
+      .replaceAll(']', '');
     routes[url] = {};
     const route: FSRoute = routes[url];
 
@@ -112,7 +112,7 @@ async function routesGenerator(baseUrl: string) {
         const modulePath = path.join(routePath, routeEntry.name);
 
         try {
-          const module = await fetchRouteModule(modulePath);
+          const module = await Importer.fetchRouteModule(modulePath);
 
           if (typeof module.default !== 'function' && module.default !== undefined) {
             console.warn(`Route module at ${modulePath} has non-function default export`);
@@ -140,7 +140,7 @@ async function routesGenerator(baseUrl: string) {
         const modulePath = path.join(routePath, routeEntry.name);
 
         try {
-          const module = await fetchMiddleware(modulePath);
+          const module = await Importer.fetchMiddleware(modulePath);
 
           if (!module) {
             console.warn(`Middleware module at ${modulePath} is empty or invalid`);

@@ -10,7 +10,7 @@
     },
     "./router/fs": {
       "import": "./src/router/fs/index.ts",
-      "require": "./src/router/index.js"
+      "require": "./src/router/fs/index.js"
     },
     "./common": {
       "import": "./src/common/index.ts",

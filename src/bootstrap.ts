@@ -1,7 +1,8 @@
 import { Server } from './server/server';
-import { NotFound, parseRequest } from './utils/utils';
-import type { Router } from './router-adapter';
+import type { Router } from './router/router-adapter';
 import { Context } from './context/context';
+import { HTTPVerb } from './router/router-adapter';
+
 export interface BootstrapOptions {
   router: Router;
   publicDir?: string;
@@ -14,8 +15,8 @@ export async function bootstrap(
   const publicDir = options.publicDir || './public';
 
   return async function handler(request: Request): Promise<Response> {
-    const { pathname, verb } = parseRequest(request);
-
+    const pathname = new URL(request.url).pathname;
+    const verb = request.method.toUpperCase() as HTTPVerb;
     const routeMatch = router.match(pathname);
     const verbModule = routeMatch?.getVerbModule(verb);
     const verbMiddlewares = routeMatch?.getVerbMiddlewares(verb) || [];
@@ -34,7 +35,7 @@ export async function bootstrap(
       const routeResponse = await Server.runRequestHandler(request, verbModule.handler);
       if (routeResponse) return routeResponse;
 
-      return NotFound();
+      return new Response('Not Found', { status: 404 });
     });
   };
 }

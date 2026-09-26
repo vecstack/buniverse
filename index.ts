@@ -9,5 +9,5 @@ const Buniverse = {
 };
 
 export { useRequest, useServerContext, bootstrap };
-export type { RequestHandler } from './src/router-adapter.js';
+export type { RequestHandler } from './src/router/router-adapter.js';
 export default Buniverse;
